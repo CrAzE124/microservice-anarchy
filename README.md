@@ -6,15 +6,22 @@ A microservice registry client easy-maker, i.e. a simple way to register a servi
 
 ```js
 //In bin/www.js
-var anarchy = require('anarchy');
+//...
+var anarchy = require('microservice-anarchy');
+
+var server = http.createServer(app);
+
+//...
+
+anarchy(server);
 ```
 
-That's it. If you want to *find* a service, all you need to do is run
+That's it. If you want to *find* another service, all you need to do is run
 
 ```js
-var finder = require('anarchy');
+var anarchy = require('anarchy');
 
-var endpoint = finder('some-other-microservice');
+var endpoint = anarchy.getService('some-other-microservice');
 ```
 
 That, also, is it.
