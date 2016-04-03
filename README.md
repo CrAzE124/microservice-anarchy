@@ -21,7 +21,10 @@ That's it. If you want to *find* another service, all you need to do is run
 ```js
 var anarchy = require('anarchy');
 
-var endpoint = anarchy.getService('some-other-microservice');
+anarchy.getService('some-other-microservice', function(err, res) {
+  //Do stuff here...
+  //res and err are the response types sent by the superagent package
+});
 ```
 
 That, also, is it.
