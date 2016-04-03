@@ -1,0 +1,16 @@
+{
+  "name": "microservice-anarchy",
+  "version": "0.0.1",
+  "contributors": [
+    "Thomas Bezuidenhout <thomas@tifu.co.za>"
+  ],
+  "description": "Small library for ExpressJS to register a microservice with some registry endpoint",
+  "repository": "https://github.com/CrAzE124/microservice-anarchy",
+  "main": "anarchy.js",
+  "license": "MIT",
+  "homepage": "http://tifu.co.za",
+  "private": false,
+  "dependencies": {
+    "superagent": "^1.8.3"
+  }
+}
