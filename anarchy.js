@@ -1,94 +1,98 @@
+var request = require('superagent');
+var os = require('os');
+
+var registryScheme = process.env.REGISTRY_SCHEME || 'http';
+var registryHost = process.env.REGISTRY_HOST || 'localhost';
+var registryPort = process.env.REGISTRY_PORT || '9000';
+var registerEndpoint = process.env.REGISTER_ENDPOINT || 'register';
+var findServiceEndpoint = process.env.FIND_ENDPOINT || 'find';
+var removeServiceEndpoint = process.env.REMOVE_SERVICE_ENDPOINT || 'remove';
+var serviceKey = process.env.SERVICE_KEY || 'default';
+
 /**
- * Created by thomas on 2016/04/03.
+ * Just get the service registry URI
+ *
+ * @returns {string}
  */
-function Anarchy(server) {
-    var request = require('superagent');
-    var os = require('os');
+function getBaseUri() {
+    return registryScheme + '://' + registryHost + ':' + registryPort + '/';
+}
 
-    var registryScheme = process.env.REGISTRY_SCHEME || 'http';
-    var registryHost = process.env.REGISTRY_HOST || 'localhost';
-    var registryPort = process.env.REGISTRY_PORT || '9000';
-    var registerEndpoint = process.env.REGISTER_ENDPOINT || 'register';
-    var findServiceEndpoint = process.env.FIND_ENDPOINT || 'find';
-    var removeServiceEndpoint = process.env.REMOVE_SERVICE_ENDPOINT || 'remove';
-    var serviceKey = process.env.SERVICE_KEY || 'default';
-
-    function getBaseUri() {
-        return registryScheme + '://' + registryHost + ':' + registryPort + '/';
+/**
+ * Get the data that will need to be posted to the server
+ *
+ * @returns {{key: (*|string), serviceName: string}}
+ */
+function getPostData() {
+    return {
+        key: serviceKey,
+        serviceName: os.hostname() + ':' + (process.env.PORT || '3000') //Local networking will obviously recognize hostnames
     }
+}
 
-    function getPostData() {
-        return {
-            key: serviceKey,
-            serviceName: os.hostname() + ':' + (process.env.PORT || '3000') //Local networking will obviously recognize hostnames
-        }
-    }
-
+/**
+ * Anarchy main object
+ *
+ * @constructor
+ */
+function Anarchy() {
     /**
-     * Register the service to the endpoint
+     * Register the microservice here!
+     *
+     * @param server
      */
-    function onListen() {
-        request
-            .post(getBaseUri() + registerEndpoint)
-            .send(getPostData())
-            .set('Content-Type', 'application/json')
-            .end(function (err, res) {
-                if (err || !res.ok) {
-                    console.log('Something went wrong!', err);
+    this.register = function(server) {
+        server.on('listening', function() {
+            request
+                .post(getBaseUri() + registerEndpoint)
+                .send(getPostData())
+                .set('Content-Type', 'application/json')
+                .end(function (err, res) {
+                    if (err || !res.ok) {
+                        console.log('Something went wrong!', err);
 
-                    return false;
-                }
+                        return false;
+                    }
 
-                console.log('Service has been registered with registry');
-            });
-    }
+                    console.log('Service has been registered with registry');
+                });
+        });
 
-    /**
-     * Un-register the service
-     */
-    function onExit() {
-        console.log('De-registering from container registry');
+        server.on('exit', function() {
+            console.log('De-registering from container registry');
 
-        request
-            .del(getBaseUri() + removeServiceEndpoint)
-            .set('Content-Type', 'application/json')
-            .send(getPostData())
-            .end(function (err, res) {
-                if (err || !res.ok) {
-                    console.log('Something went wrong!', err);
+            request
+                .del(getBaseUri() + removeServiceEndpoint)
+                .set('Content-Type', 'application/json')
+                .send(getPostData())
+                .end(function (err, res) {
+                    if (err || !res.ok) {
+                        console.log('Something went wrong!', err);
 
-                    return false;
-                }
+                        return false;
+                    }
 
-                console.log('De-registered service from registry');
-            });
-    }
+                    console.log('De-registered service from registry');
+                });
+        });
+    };
 
     /**
      * While we're at it, might as well write a finder, so we can find *other* keys
      *
      * @param serviceName
+     * @param cb Function
+     * @returns {Promise|*}
      */
-    function getService(serviceName) {
+    this.getService = function(serviceName, cb) {
         return request
-            .get(getBaseUri + findServiceEndpoint)
-            .send({
+            .get(getBaseUri() + findServiceEndpoint)
+            .query({
                 key: serviceKey
             })
             .set('Content-Type', 'application/json')
-            .end(function (err, res) {
-                if (err || !res.ok) {
-                    console.log('Something went wrong!', err);
-
-                    return false;
-                }
-
-                return res;
-            });
+            .end(cb);
     }
-
-    server.on('listening', onListen);
-    server.on('exit', onExit);
 }
 
-module.exports = Anarchy;
+module.exports = new Anarchy();
