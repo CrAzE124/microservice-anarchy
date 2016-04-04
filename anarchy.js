@@ -3,7 +3,7 @@ var os = require('os');
 
 var registryScheme = process.env.REGISTRY_SCHEME || 'http';
 var registryHost = process.env.REGISTRY_HOST || 'localhost';
-var registryPort = process.env.REGISTRY_PORT || '9000';
+var registryPort = process.env.REGISTRY_PORT || '9005';
 var registerEndpoint = process.env.REGISTER_ENDPOINT || 'register';
 var findServiceEndpoint = process.env.FIND_ENDPOINT || 'find';
 var removeServiceEndpoint = process.env.REMOVE_SERVICE_ENDPOINT || 'remove';

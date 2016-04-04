@@ -13,7 +13,7 @@ var server = http.createServer(app);
 
 //...
 
-anarchy(server);
+anarchy.register(server);
 ```
 
 That's it. If you want to *find* another service, all you need to do is run
