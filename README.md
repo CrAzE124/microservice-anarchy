@@ -30,3 +30,10 @@ anarchy.getService('some-other-microservice', function(err, res) {
 That, also, is it.
 
 Feel free to add some PR's or whatever. I was semi-drunk while writing this. No unit tests either.
+
+##Extras
+
+Running your docker application with `--link anarchy-web:anarchy` will expose env variables like 
+`ANARCHY_PORT_9005_TCP_PORT`, which is used inside this application. Example docker command I have running my side: 
+
+`docker run -d --name my-app -p 3002:3002 --link mongo:mongo --link anarchy-web:anarchy thing/image:1.0`
