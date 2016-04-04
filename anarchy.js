@@ -21,12 +21,12 @@ function getBaseUri() {
 /**
  * Get the data that will need to be posted to the server
  *
- * @returns {{key: (*|string), serviceName: string}}
+ * @returns {{key: string, port: string}}
  */
 function getPostData() {
     return {
         key: serviceKey,
-        serviceName: os.hostname() + ':' + (process.env.PORT || '3000') //Local networking will obviously recognize hostnames
+        port: (process.env.PORT || '3000') //Local networking will obviously recognize hostnames
     }
 }
 
